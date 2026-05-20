@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AVT Route Manager — Thrissur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1D9E75;
+    --green-dark: #0F6E56;
+    --green-light: #E1F5EE;
+    --green-mid: #5DCAA5;
+    --amber: #BA7517;
+    --amber-light: #FAEEDA;
+    --blue: #185FA5;
+    --blue-light: #E6F1FB;
+    --purple-light: #EEEDFE;
+    --purple: #534AB7;
+    --red: #A32D2D;
+    --red-light: #FCEBEB;
+    --bg: #F7F6F2;
+    --surface: #FFFFFF;
+    --surface2: #F0EFE9;
+    --border: #E2E0D8;
+    --border2: #CCCAC0;
+    --text: #1C1C1A;
+    --text2: #5A5955;
+    --text3: #9A9890;
+    --radius: 10px;
+    --radius-lg: 14px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 12px rgba(0,0,0,0.05);
+    --shadow-lg: 0 2px 8px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.07);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; line-height: 1.5; }
+
+  /* TOP NAV */
+  .topnav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 20px; height: 56px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
+  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .logo-icon { width: 34px; height: 34px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .logo-icon svg { width: 20px; height: 20px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .logo-text { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--text); }
+  .logo-sub { font-size: 11px; color: var(--text3); font-weight: 400; margin-top: -2px; }
+  .nav-tabs { display: flex; gap: 2px; margin-left: auto; }
+  .nav-tab { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; border: none; background: none; cursor: pointer; font-size: 13px; font-family: 'DM Sans', sans-serif; color: var(--text2); font-weight: 500; transition: all 0.15s; }
+  .nav-tab:hover { background: var(--surface2); color: var(--text); }
+  .nav-tab.active { background: var(--green-light); color: var(--green-dark); }
+  .nav-tab svg { width: 16px; height: 16px; }
+  .date-chip { margin-left: 8px; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 6px; }
+
+  /* MAIN LAYOUT */
+  .main { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
+  .panel { display: none; flex-direction: column; gap: 20px; }
+  .panel.active { display: flex; }
+
+  /* CARDS */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; box-shadow: var(--shadow); }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 14px; display: flex; align-items: center; gap: 7px; letter-spacing: 0.02em; text-transform: uppercase; }
+  .card-title svg { width: 15px; height: 15px; opacity: 0.7; }
+
+  /* FORM CONTROLS */
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 12px; font-weight: 500; color: var(--text2); }
+  select, input[type=text], input[type=number], input[type=date] {
+    height: 36px; padding: 0 10px; border: 1px solid var(--border2); border-radius: var(--radius);
+    background: var(--surface); color: var(--text); font-size: 13px; font-family: 'DM Sans', sans-serif;
+    transition: border-color 0.15s, box-shadow 0.15s; outline: none;
+  }
+  select:focus, input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(29,158,117,0.12); }
+  .row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+  .btn {
+    height: 36px; padding: 0 16px; border-radius: var(--radius); border: 1px solid var(--border2);
+    background: var(--surface); color: var(--text); font-size: 13px; font-family: 'DM Sans', sans-serif;
+    font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .btn:hover { background: var(--surface2); border-color: var(--border2); }
+  .btn.primary { background: var(--green); color: #fff; border-color: var(--green); }
+  .btn.primary:hover { background: var(--green-dark); border-color: var(--green-dark); }
+  .btn.danger { background: var(--red-light); color: var(--red); border-color: #F0C5C5; }
+  .btn.danger:hover { background: #f5d5d5; }
+  .btn.sm { height: 28px; padding: 0 10px; font-size: 12px; border-radius: 7px; }
+  .btn svg { width: 15px; height: 15px; }
+
+  /* METRICS */
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+  .metric { background: var(--surface2); border-radius: var(--radius); padding: 12px 14px; }
+  .metric .m-label { font-size: 11px; color: var(--text3); font-weight: 500; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .metric .m-val { font-size: 22px; font-weight: 600; color: var(--text); font-family: 'DM Serif Display', serif; }
+  .metric .m-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* TABLES */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 8px 10px; font-size: 11px; font-weight: 600; color: var(--text3); border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.04em; }
+  td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #FAFAF8; }
+
+  /* BADGES */
+  .badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 20px; }
+  .badge-tea { background: var(--green-light); color: var(--green-dark); }
+  .badge-coffee { background: var(--amber-light); color: var(--amber); }
+  .badge-premix { background: var(--purple-light); color: var(--purple); }
+  .badge-green { background: #EAF3DE; color: #3B6D11; }
+  .badge-route { background: var(--blue-light); color: var(--blue); font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+
+  /* STORE CHIPS */
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip { display: inline-flex; align-items: center; gap: 5px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 5px 12px; font-size: 12px; cursor: pointer; transition: all 0.15s; color: var(--text2); }
+  .chip:hover { border-color: var(--green-mid); color: var(--green-dark); }
+  .chip.has-order { background: var(--green-light); border-color: var(--green-mid); color: var(--green-dark); }
+  .chip svg { width: 13px; height: 13px; }
+
+  /* ORDER ENTRY */
+  .add-row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; padding: 12px 0 0; border-top: 1px solid var(--border); margin-top: 8px; }
+  .store-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+  .store-name-big { font-family: 'DM Serif Display', serif; font-size: 18px; }
+  .store-gstin { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+  /* BILL */
+  .bill-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 32px; }
+  .bill-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid var(--text); }
+  .co-name { font-family: 'DM Serif Display', serif; font-size: 20px; margin-bottom: 4px; }
+  .co-info { font-size: 12px; color: var(--text2); line-height: 1.8; }
+  .bill-title { font-family: 'DM Serif Display', serif; font-size: 22px; text-align: right; }
+  .bill-meta { font-size: 12px; color: var(--text2); text-align: right; line-height: 1.8; margin-top: 4px; }
+  .bill-to { background: var(--surface2); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 16px; font-size: 13px; }
+  .bill-to strong { display: block; margin-bottom: 2px; }
+  .totals-section { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .total-line { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; color: var(--text2); }
+  .total-line.grand { font-size: 16px; font-weight: 600; color: var(--text); border-top: 1px solid var(--border); margin-top: 6px; padding-top: 8px; }
+  .gst-table { margin-top: 12px; background: var(--surface2); border-radius: var(--radius); padding: 10px 14px; }
+  .gst-table-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+  .sign-row { display: flex; justify-content: space-between; margin-top: 28px; padding-top: 14px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text3); }
+
+  /* LOADING REPORT */
+  .load-highlight { background: linear-gradient(135deg, var(--green-light) 0%, #f0fdf7 100%); border: 1px solid var(--green-mid); border-radius: var(--radius-lg); padding: 18px 20px; margin-bottom: 16px; }
+  .load-highlight h2 { font-family: 'DM Serif Display', serif; font-size: 20px; margin-bottom: 4px; }
+  .load-highlight p { font-size: 13px; color: var(--green-dark); }
+
+  /* SETUP */
+  .setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .list-item { display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; background: var(--surface2); border-radius: var(--radius); }
+  .list-item .li-main { font-size: 13px; font-weight: 500; }
+  .list-item .li-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+  /* EMPTY STATE */
+  .empty { text-align: center; padding: 36px 20px; color: var(--text3); }
+  .empty svg { width: 36px; height: 36px; opacity: 0.3; margin-bottom: 10px; }
+  .empty p { font-size: 13px; }
+
+  /* PRINT STYLES */
+  @media print {
+    body { background: #fff; }
+    .topnav, .no-print, .nav-tabs, .btn, .add-row, .chips, .panel:not(.active) { display: none !important; }
+    .main { padding: 0; max-width: 100%; }
+    .card, .bill-wrap { box-shadow: none; border: none; }
+    .bill-wrap { padding: 0; }
+    tbody tr:hover { background: none; }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 700px) {
+    .topnav { padding: 0 14px; gap: 10px; }
+    .logo-text { font-size: 15px; }
+    .nav-tab span { display: none; }
+    .setup-grid { grid-template-columns: 1fr; }
+    .main { padding: 14px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a class="logo" href="#">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11a2 2 0 012 2v3"/><rect x="9" y="11" width="14" height="10" rx="2"/><circle cx="12" cy="16" r="1"/></svg>
+    </div>
+    <div>
+      <div class="logo-text">AVT Route Manager</div>
+      <div class="logo-sub">Thrissur Distribution</div>
+    </div>
+  </a>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('orders')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      <span>Orders</span>
+    </button>
+    <button class="nav-tab" onclick="switchTab('bill')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span>GST Bills</span>
+    </button>
+    <button class="nav-tab" onclick="switchTab('loading')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+      <span>Loading</span>
+    </button>
+    <button class="nav-tab" onclick="switchTab('setup')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M19.07 19.07l-1.41-1.41M4.93 19.07l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>
+      <span>Setup</span>
+    </button>
+  </div>
+  <div class="date-chip no-print">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <span id="today-display"></span>
+  </div>
+</nav>
+
+<main class="main">
+
+  <!-- ORDERS PANEL -->
+  <div class="panel active" id="panel-orders">
+    <div class="card no-print">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Order Collection
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Route</label>
+          <select id="ord-route" onchange="onRouteChange()">
+            <option value="">Select route...</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="ord-date" onchange="onDateChange()" />
+        </div>
+        <div class="field">
+          <label>Store</label>
+          <select id="ord-store" onchange="onStoreChange()">
+            <option value="">Select store...</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div id="chips-area" style="display:none" class="no-print">
+      <div class="chips" id="store-chips"></div>
+    </div>
+
+    <div class="card" id="order-entry-card" style="display:none">
+      <div class="store-header">
+        <div>
+          <div class="store-name-big" id="oe-name"></div>
+          <div class="store-gstin" id="oe-gstin"></div>
+        </div>
+        <button class="btn danger sm" onclick="clearCurrentOrder()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19,6v14a2,2,0,01-2,2H7a2,2,0,01-2-2V6m3,0V4a2,2,0,012-2h4a2,2,0,012,2v2"/></svg>
+          Clear
+        </button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th style="text-align:right">Qty (kg)</th>
+            <th style="text-align:right">Rate (₹/kg)</th>
+            <th style="text-align:right">Amount</th>
+            <th style="text-align:right">GST</th>
+            <th style="text-align:right">Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="oe-tbody"></tbody>
+        <tfoot id="oe-tfoot"></tfoot>
+      </table>
+      <div class="add-row no-print">
+        <div class="field" style="flex:2;min-width:180px">
+          <label>Product</label>
+          <select id="ap-product" onchange="onProductChange()">
+            <option value="">Select product...</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Qty (kg)</label>
+          <input type="number" id="ap-qty" placeholder="e.g. 5" min="0.5" step="0.5" style="width:90px" />
+        </div>
+        <div class="field">
+          <label>Rate (₹/kg)</label>
+          <input type="number" id="ap-rate" placeholder="e.g. 280" min="1" step="1" style="width:100px" />
+        </div>
+        <button class="btn primary" onclick="addItem()" style="align-self:flex-end">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Item
+        </button>
+      </div>
+    </div>
+
+    <div class="metrics" id="route-summary" style="display:none">
+      <div class="metric"><div class="m-label">Stores ordered</div><div class="m-val" id="rs-stores">0</div></div>
+      <div class="metric"><div class="m-label">Total products</div><div class="m-val" id="rs-lines">0</div></div>
+      <div class="metric"><div class="m-label">Total qty</div><div class="m-val" id="rs-kg">0 kg</div></div>
+      <div class="metric"><div class="m-label">Route value</div><div class="m-val" id="rs-val">₹0</div></div>
+    </div>
+  </div>
+
+  <!-- BILL PANEL -->
+  <div class="panel" id="panel-bill">
+    <div class="row no-print">
+      <div class="field">
+        <label>Route</label>
+        <select id="bill-route" onchange="onBillRouteChange()">
+          <option value="">Select route...</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Store</label>
+        <select id="bill-store" onchange="renderBill()">
+          <option value="">Select store...</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Bill date</label>
+        <input type="date" id="bill-date" />
+      </div>
+      <button class="btn primary no-print" onclick="window.print()" style="align-self:flex-end">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 6,2 18,2 18,9"/><path d="M6,18H4a2,2,0,01-2-2V11a2,2,0,012-2H20a2,2,0,012,2v5a2,2,0,01-2,2H18"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print Bill
+      </button>
+    </div>
+    <div id="bill-area">
+      <div class="card">
+        <div class="empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:block;margin:0 auto"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+          <p>Select a route and store to view the GST bill</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING PANEL -->
+  <div class="panel" id="panel-loading">
+    <div class="row no-print">
+      <div class="field">
+        <label>Route</label>
+        <select id="load-route" onchange="renderLoading()">
+          <option value="">Select route...</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Date</label>
+        <input type="date" id="load-date" onchange="renderLoading()" />
+      </div>
+      <button class="btn primary no-print" onclick="window.print()" style="align-self:flex-end">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 6,2 18,2 18,9"/><path d="M6,18H4a2,2,0,01-2-2V11a2,2,0,012-2H20a2,2,0,012,2v5a2,2,0,01-2,2H18"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print Report
+      </button>
+    </div>
+    <div id="loading-area">
+      <div class="card">
+        <div class="empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:block;margin:0 auto"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+          <p>Select a route to view the vehicle loading report</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETUP PANEL -->
+  <div class="panel" id="panel-setup">
+
+    <!-- Business Info -->
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+        Your Business Details (printed on bills)
+      </div>
+      <div class="row" style="flex-wrap:wrap">
+        <div class="field" style="flex:1;min-width:200px"><label>Business name</label><input type="text" id="biz-name" /></div>
+        <div class="field" style="flex:1;min-width:200px"><label>GSTIN</label><input type="text" id="biz-gstin" /></div>
+        <div class="field" style="flex:1;min-width:200px"><label>Address</label><input type="text" id="biz-addr" /></div>
+        <div class="field" style="flex:1;min-width:160px"><label>Phone</label><input type="text" id="biz-phone" /></div>
+      </div>
+      <div style="margin-top:12px">
+        <button class="btn primary" onclick="saveBiz()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/></svg>
+          Save Details
+        </button>
+      </div>
+    </div>
+
+    <div class="setup-grid">
+      <!-- Routes -->
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><polyline points="8,7 3,12 8,17"/><polyline points="16,7 21,12 16,17"/></svg>
+          Routes
+        </div>
+        <div class="row" style="margin-bottom:14px">
+          <input type="text" id="new-route" placeholder="Route name (e.g. Vadakanchery)" style="flex:1" onkeydown="if(event.key==='Enter')addRoute()" />
+          <button class="btn primary" onclick="addRoute()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add
+          </button>
+        </div>
+        <div id="route-list" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+
+      <!-- Stores -->
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+          Stores
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:12px">
+          <input type="text" id="new-store-name" placeholder="Store name *" />
+          <input type="text" id="new-store-gstin" placeholder="GSTIN (optional)" />
+          <input type="text" id="new-store-phone" placeholder="Phone (optional)" />
+          <select id="new-store-route"><option value="">Assign to route *</option></select>
+          <button class="btn primary" onclick="addStore()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Store
+          </button>
+        </div>
+        <div id="store-list" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+    </div>
+
+    <!-- Products -->
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27,6.96 12,12.01 20.73,6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        Products (AVT Catalogue)
+      </div>
+      <table>
+        <thead>
+          <tr><th>Product Name</th><th>Type</th><th>Category</th><th style="text-align:center">GST %</th><th>Default Rate</th></tr>
+        </thead>
+        <tbody id="product-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+const DEFAULT_STATE = {
+  biz: { name: 'Your Distributors', gstin: '32AAAAA0000A1Z5', addr: 'Thrissur, Kerala', phone: '9876543210' },
+  routes: ['Vadakanchery', 'Irinjalakuda', 'Chalakudy'],
+  stores: [
+    { id: 's1', name: 'Krishna Stores', route: 'Vadakanchery', gstin: '32AABCA1234A1Z5', phone: '9876543210' },
+    { id: 's2', name: 'Anand Tea House', route: 'Vadakanchery', gstin: '', phone: '9988776655' },
+    { id: 's3', name: 'SRM Traders', route: 'Vadakanchery', gstin: '32XYZAB5678B2Z3', phone: '9765432100' },
+    { id: 's4', name: 'Lakshmi Provision', route: 'Irinjalakuda', gstin: '', phone: '9845123456' },
+    { id: 's5', name: 'John Supermarket', route: 'Chalakudy', gstin: '32PQRST9999C3Z7', phone: '9812345678' },
+  ],
+  products: [
+    { id: 'p1', name: 'AVT Premium CTC Dust Tea', type: 'CTC Dust', cat: 'tea', gst: 5, defRate: 280 },
+    { id: 'p2', name: 'AVT Gold Cup Dust Tea', type: 'CTC Dust', cat: 'tea', gst: 5, defRate: 310 },
+    { id: 'p3', name: 'AVT Rajah Tea', type: 'CTC Dust', cat: 'tea', gst: 5, defRate: 240 },
+    { id: 'p4', name: 'AVT Assam Tea', type: 'CTC Dust', cat: 'tea', gst: 5, defRate: 260 },
+    { id: 'p5', name: "AVT Nature's Cup", type: 'Herbal Blend', cat: 'tea', gst: 5, defRate: 320 },
+    { id: 'p6', name: 'AVT Green Tea Bags', type: 'Green Tea', cat: 'tea', gst: 12, defRate: 480 },
+    { id: 'p7', name: 'AVT 3-in-1 Tea Premix', type: 'Premix', cat: 'premix', gst: 18, defRate: 350 },
+    { id: 'p8', name: 'AVT Premium Coffee', type: 'R&G Coffee', cat: 'coffee', gst: 5, defRate: 380 },
+    { id: 'p9', name: 'AVT Coffee Vending Premix', type: 'Premix', cat: 'coffee', gst: 18, defRate: 420 },
+    { id: 'p10', name: 'AVT 3-in-1 Coffee Premix', type: 'Premix', cat: 'premix', gst: 18, defRate: 390 },
+  ],
+  orders: {},
+  billSeq: 1001,
+};
+
+let S = loadState();
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('avt_rm_v2');
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_STATE));
+}
+
+function save() {
+  try { localStorage.setItem('avt_rm_v2', JSON.stringify(S)); } catch(e) {}
+}
+
+function oKey(route, storeId, date) { return `${route}|${storeId}|${date}`; }
+function today() { return new Date().toISOString().slice(0,10); }
+function fmt(n) { return Number(n).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function fmtInt(n) { return Math.round(n).toLocaleString('en-IN'); }
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+window.onload = function() {
+  const d = today();
+  document.getElementById('ord-date').value = d;
+  document.getElementById('load-date').value = d;
+  document.getElementById('bill-date').value = d;
+  document.getElementById('today-display').textContent = new Date().toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'});
+  loadBizForm();
+  refreshAllSelects();
+  renderRouteList();
+  renderStoreList();
+  renderProductTable();
+};
+
+// ─── TAB SWITCHING ────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const tabs = ['orders','bill','loading','setup'];
+  document.querySelectorAll('.nav-tab')[tabs.indexOf(tab)].classList.add('active');
+  document.getElementById('panel-'+tab).classList.add('active');
+  if (tab === 'bill') { syncBillRoutes(); }
+  if (tab === 'loading') { syncLoadRoutes(); }
+}
+
+// ─── REFRESH SELECTS ─────────────────────────────────────────────────────────
+function refreshAllSelects() {
+  fillSelect('ord-route', S.routes, 'Select route...');
+  fillSelect('bill-route', S.routes, 'Select route...');
+  fillSelect('load-route', S.routes, 'Select route...');
+  fillSelect('new-store-route', S.routes, 'Assign to route *');
+  fillProductSelect('ap-product');
+}
+
+function fillSelect(id, arr, placeholder) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const cur = el.value;
+  el.innerHTML = `<option value="">${placeholder}</option>` + arr.map(v => `<option value="${v}"${v===cur?' selected':''}>${v}</option>`).join('');
+}
+
+function fillStoreSelect(id, route, placeholder) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const stores = S.stores.filter(s => s.route === route);
+  el.innerHTML = `<option value="">${placeholder}</option>` + stores.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+}
+
+function fillProductSelect(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = '<option value="">Select product...</option>' +
+    S.products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+}
+
+// ─── ORDERS ──────────────────────────────────────────────────────────────────
+function onRouteChange() {
+  const route = document.getElementById('ord-route').value;
+  if (!route) { document.getElementById('chips-area').style.display='none'; document.getElementById('order-entry-card').style.display='none'; document.getElementById('route-summary').style.display='none'; return; }
+  fillStoreSelect('ord-store', route, 'Select store...');
+  renderChips();
+  document.getElementById('chips-area').style.display = 'block';
+  document.getElementById('order-entry-card').style.display = 'none';
+  renderRouteSummary();
+}
+
+function onDateChange() {
+  renderChips();
+  const storeId = document.getElementById('ord-store').value;
+  if (storeId) renderOrderEntry(storeId);
+  renderRouteSummary();
+}
+
+function onStoreChange() {
+  const storeId = document.getElementById('ord-store').value;
+  if (storeId) openStore(storeId);
+}
+
+function renderChips() {
+  const route = document.getElementById('ord-route').value;
+  const date = document.getElementById('ord-date').value;
+  const stores = S.stores.filter(s => s.route === route);
+  document.getElementById('store-chips').innerHTML = stores.map(s => {
+    const key = oKey(route, s.id, date);
+    const hasOrder = S.orders[key] && S.orders[key].length > 0;
+    return `<div class="chip ${hasOrder?'has-order':''}" onclick="openStore('${s.id}')">
+      ${hasOrder ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg>' : ''}
+      ${s.name}
+    </div>`;
+  }).join('');
+}
+
+function openStore(storeId) {
+  document.getElementById('ord-store').value = storeId;
+  const store = S.stores.find(s => s.id === storeId);
+  if (!store) return;
+  document.getElementById('oe-name').textContent = store.name;
+  document.getElementById('oe-gstin').textContent = store.gstin ? 'GSTIN: ' + store.gstin : (store.phone ? 'Ph: ' + store.phone : 'Unregistered');
+  document.getElementById('order-entry-card').style.display = 'block';
+  renderOrderEntry(storeId);
+}
+
+function renderOrderEntry(storeId) {
+  const route = document.getElementById('ord-route').value;
+  const date = document.getElementById('ord-date').value;
+  const key = oKey(route, storeId, date);
+  const items = S.orders[key] || [];
+  const tbody = document.getElementById('oe-tbody');
+  const tfoot = document.getElementById('oe-tfoot');
+  if (!items.length) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:20px">No items yet — add products below</td></tr>`;
+    tfoot.innerHTML = '';
+    return;
+  }
+  let subtotal = 0, totalGst = 0;
+  tbody.innerHTML = items.map((item, idx) => {
+    const p = S.products.find(x => x.id === item.pid);
+    if (!p) return '';
+    const base = item.qty * item.rate;
+    const gstAmt = base * p.gst / 100;
+    const total = base + gstAmt;
+    subtotal += base; totalGst += gstAmt;
+    return `<tr>
+      <td>${p.name}</td>
+      <td><span class="badge badge-${p.cat}">${p.type}</span></td>
+      <td style="text-align:right">${item.qty} kg</td>
+      <td style="text-align:right">₹${item.rate}</td>
+      <td style="text-align:right">₹${fmt(base)}</td>
+      <td style="text-align:right">${p.gst}%</td>
+      <td style="text-align:right">₹${fmt(total)}</td>
+      <td><button class="btn danger sm" onclick="removeItem('${key}',${idx})">✕</button></td>
+    </tr>`;
+  }).join('');
+  const grand = subtotal + totalGst;
+  tfoot.innerHTML = `<tr style="background:var(--surface2);font-weight:600">
+    <td colspan="4" style="font-weight:600">Total</td>
+    <td style="text-align:right">₹${fmt(subtotal)}</td>
+    <td style="text-align:right">₹${fmt(totalGst)}</td>
+    <td style="text-align:right;font-size:14px">₹${fmt(grand)}</td>
+    <td></td>
+  </tr>`;
+  renderRouteSummary();
+  renderChips();
+}
+
+function onProductChange() {
+  const pid = document.getElementById('ap-product').value;
+  const p = S.products.find(x => x.id === pid);
+  if (p) document.getElementById('ap-rate').value = p.defRate;
+}
+
+function addItem() {
+  const route = document.getElementById('ord-route').value;
+  const storeId = document.getElementById('ord-store').value;
+  const date = document.getElementById('ord-date').value;
+  const pid = document.getElementById('ap-product').value;
+  const qty = parseFloat(document.getElementById('ap-qty').value);
+  const rate = parseFloat(document.getElementById('ap-rate').value);
+  if (!pid) return alert('Please select a product');
+  if (!qty || qty <= 0) return alert('Please enter a valid quantity');
+  if (!rate || rate <= 0) return alert('Please enter a valid rate');
+  const key = oKey(route, storeId, date);
+  if (!S.orders[key]) S.orders[key] = [];
+  const existing = S.orders[key].findIndex(i => i.pid === pid);
+  if (existing >= 0) {
+    S.orders[key][existing].qty = parseFloat((S.orders[key][existing].qty + qty).toFixed(2));
+  } else {
+    S.orders[key].push({ pid, qty, rate });
+  }
+  save();
+  document.getElementById('ap-product').value = '';
+  document.getElementById('ap-qty').value = '';
+  document.getElementById('ap-rate').value = '';
+  renderOrderEntry(storeId);
+}
+
+function removeItem(key, idx) {
+  S.orders[key].splice(idx, 1);
+  save();
+  const storeId = document.getElementById('ord-store').value;
+  renderOrderEntry(storeId);
+}
+
+function clearCurrentOrder() {
+  const route = document.getElementById('ord-route').value;
+  const storeId = document.getElementById('ord-store').value;
+  const date = document.getElementById('ord-date').value;
+  if (!confirm('Clear all items for this store?')) return;
+  S.orders[oKey(route, storeId, date)] = [];
+  save();
+  renderOrderEntry(storeId);
+}
+
+function renderRouteSummary() {
+  const route = document.getElementById('ord-route').value;
+  const date = document.getElementById('ord-date').value;
+  if (!route) return;
+  let stores = 0, lines = 0, kg = 0, val = 0;
+  S.stores.filter(s => s.route === route).forEach(s => {
+    const items = S.orders[oKey(route, s.id, date)] || [];
+    if (items.length) { stores++; items.forEach(i => { lines++; kg += i.qty; val += i.qty * i.rate; }); }
+  });
+  document.getElementById('route-summary').style.display = stores > 0 ? 'grid' : 'none';
+  document.getElementById('rs-stores').textContent = stores;
+  document.getElementById('rs-lines').textContent = lines;
+  document.getElementById('rs-kg').textContent = kg.toFixed(1) + ' kg';
+  document.getElementById('rs-val').textContent = '₹' + fmtInt(val);
+}
+
+// ─── BILL ─────────────────────────────────────────────────────────────────────
+function syncBillRoutes() {
+  fillSelect('bill-route', S.routes, 'Select route...');
+  document.getElementById('bill-date').value = today();
+}
+
+function onBillRouteChange() {
+  const route = document.getElementById('bill-route').value;
+  const date = document.getElementById('bill-date').value;
+  const stores = S.stores.filter(s => s.route === route && hasOrders(s.id, route, date));
+  const sel = document.getElementById('bill-store');
+  sel.innerHTML = '<option value="">Select store...</option>' + stores.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+  document.getElementById('bill-area').innerHTML = '<div class="card"><div class="empty"><p>Select a store to view the GST bill</p></div></div>';
+}
+
+function hasOrders(storeId, route, date) {
+  if (date) { const items = S.orders[oKey(route, storeId, date)]; return items && items.length > 0; }
+  return Object.keys(S.orders).some(k => k.startsWith(route + '|' + storeId + '|') && S.orders[k].length > 0);
+}
+
+function renderBill() {
+  const route = document.getElementById('bill-route').value;
+  const storeId = document.getElementById('bill-store').value;
+  const date = document.getElementById('bill-date').value || today();
+  if (!storeId) return;
+  const store = S.stores.find(s => s.id === storeId);
+  const items = S.orders[oKey(route, storeId, date)] || [];
+  if (!items.length) {
+    document.getElementById('bill-area').innerHTML = '<div class="card"><div class="empty"><p>No orders found for this store on selected date</p></div></div>';
+    return;
+  }
+  const biz = S.biz;
+  const billNo = 'INV-' + String(S.billSeq).padStart(4,'0');
+  let subtotal = 0;
+  const gstBreak = {};
+  const rows = items.map(item => {
+    const p = S.products.find(x => x.id === item.pid);
+    const base = item.qty * item.rate;
+    const gstAmt = base * p.gst / 100;
+    const total = base + gstAmt;
+    subtotal += base;
+    if (!gstBreak[p.gst]) gstBreak[p.gst] = 0;
+    gstBreak[p.gst] += base;
+    return `<tr>
+      <td>${p.name}</td>
+      <td style="text-align:center">${p.gst}%</td>
+      <td style="text-align:center">${item.qty} kg</td>
+      <td style="text-align:right">₹${fmt(item.rate)}</td>
+      <td style="text-align:right">₹${fmt(base)}</td>
+      <td style="text-align:right">₹${fmt(gstAmt)}</td>
+      <td style="text-align:right;font-weight:600">₹${fmt(total)}</td>
+    </tr>`;
+  }).join('');
+  let totalGst = 0;
+  const gstRows = Object.entries(gstBreak).map(([pct, base]) => {
+    const gst = base * pct / 100;
+    totalGst += gst;
+    return `<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid var(--border)">
+      <span>GST ${pct}% &nbsp;|&nbsp; CGST ${pct/2}%: ₹${fmt(gst/2)} &nbsp;+&nbsp; SGST ${pct/2}%: ₹${fmt(gst/2)}</span>
+      <span style="font-weight:600">₹${fmt(gst)}</span>
+    </div>`;
+  }).join('');
+  const grand = subtotal + totalGst;
+  const dateStr = new Date(date).toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'});
+
+  document.getElementById('bill-area').innerHTML = `
+  <div class="bill-wrap">
+    <div class="bill-top">
+      <div>
+        <div class="co-name">${biz.name}</div>
+        <div class="co-info">
+          ${biz.addr}<br>
+          GSTIN: ${biz.gstin}<br>
+          Phone: ${biz.phone}
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div class="bill-title">Tax Invoice</div>
+        <div class="bill-meta">
+          Bill No: <strong>${billNo}</strong><br>
+          Date: ${dateStr}<br>
+          Route: <span class="badge-route">${route}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bill-to">
+      <strong>Bill To: ${store.name}</strong>
+      ${store.gstin ? '<div style="font-size:12px;color:var(--text2)">GSTIN: '+store.gstin+'</div>' : '<div style="font-size:12px;color:var(--text3)">Unregistered (B2C)</div>'}
+      ${store.phone ? '<div style="font-size:12px;color:var(--text2)">Ph: '+store.phone+'</div>' : ''}
+    </div>
+
+    <table>
+      <thead>
+        <tr style="background:var(--surface2)">
+          <th>Product Description</th>
+          <th style="text-align:center">GST%</th>
+          <th style="text-align:center">Qty</th>
+          <th style="text-align:right">Rate/kg</th>
+          <th style="text-align:right">Taxable Amt</th>
+          <th style="text-align:right">GST Amt</th>
+          <th style="text-align:right">Total</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+
+    <div class="gst-table">
+      <div class="gst-table-title">GST Summary</div>
+      ${gstRows}
+    </div>
+
+    <div class="totals-section" style="display:flex;justify-content:flex-end">
+      <div style="min-width:260px">
+        <div class="total-line"><span>Taxable Amount</span><span>₹${fmt(subtotal)}</span></div>
+        <div class="total-line"><span>Total GST (CGST + SGST)</span><span>₹${fmt(totalGst)}</span></div>
+        <div class="total-line grand"><span>Grand Total</span><span>₹${fmt(grand)}</span></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;text-align:right">Amount in words: ${numberToWords(Math.round(grand))} Rupees</div>
+      </div>
+    </div>
+
+    <div class="sign-row">
+      <span>Computer generated invoice — No signature required</span>
+      <div style="text-align:center">
+        <div style="border-top:1px solid var(--border2);width:140px;margin:0 0 4px auto;padding-top:4px;font-size:11px">Authorised Signatory</div>
+        <div style="font-size:11px;font-weight:500">${biz.name}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ─── LOADING REPORT ──────────────────────────────────────────────────────────
+function syncLoadRoutes() {
+  fillSelect('load-route', S.routes, 'Select route...');
+  document.getElementById('load-date').value = today();
+}
+
+function renderLoading() {
+  const route = document.getElementById('load-route').value;
+  const date = document.getElementById('load-date').value || today();
+  if (!route) return;
+  const stores = S.stores.filter(s => s.route === route);
+  const productTotals = {};
+  const storeData = [];
+  let grandKg = 0, grandVal = 0;
+
+  stores.forEach(s => {
+    const items = S.orders[oKey(route, s.id, date)] || [];
+    if (!items.length) return;
+    let storeKg = 0, storeVal = 0;
+    const lines = [];
+    items.forEach(item => {
+      const p = S.products.find(x => x.id === item.pid);
+      if (!p) return;
+      if (!productTotals[item.pid]) productTotals[item.pid] = { name: p.name, cat: p.cat, type: p.type, qty: 0 };
+      productTotals[item.pid].qty += item.qty;
+      storeKg += item.qty;
+      storeVal += item.qty * item.rate;
+      grandKg += item.qty;
+      grandVal += item.qty * item.rate;
+      lines.push(`${p.name}: <strong>${item.qty} kg</strong>`);
+    });
+    storeData.push({ name: s.name, storeKg, storeVal, lines });
+  });
+
+  if (!storeData.length) {
+    document.getElementById('loading-area').innerHTML = `<div class="card"><div class="empty"><p>No orders found for <strong>${route}</strong> on ${new Date(date).toLocaleDateString('en-IN')}</p></div></div>`;
+    return;
+  }
+
+  const CASE = 20;
+  const totalCases = Math.ceil(grandKg / CASE);
+  const dateStr = new Date(date).toLocaleDateString('en-IN', {day:'2-digit',month:'long',year:'numeric'});
+
+  const productRows = Object.values(productTotals).map(pt => {
+    const cases = Math.ceil(pt.qty / CASE);
+    return `<tr>
+      <td>${pt.name}</td>
+      <td><span class="badge badge-${pt.cat}">${pt.type}</span></td>
+      <td style="text-align:center;font-weight:600">${pt.qty} kg</td>
+      <td style="text-align:center">${cases} case${cases!==1?'s':''}</td>
+      <td style="text-align:center;font-size:12px;color:var(--text3)">${pt.qty} ÷ ${CASE} kg/case</td>
+    </tr>`;
+  }).join('');
+
+  const storeRows = storeData.map((sd, i) => `<tr>
+    <td><strong style="font-size:13px">${i+1}.</strong> ${sd.name}</td>
+    <td style="font-size:12px;color:var(--text2)">${sd.lines.join(' &nbsp;·&nbsp; ')}</td>
+    <td style="text-align:center">${sd.storeKg} kg</td>
+    <td style="text-align:right">₹${fmtInt(sd.storeVal)}</td>
+  </tr>`).join('');
+
+  document.getElementById('loading-area').innerHTML = `
+  <div class="load-highlight">
+    <h2>Loading Sheet — ${route}</h2>
+    <p>${dateStr} &nbsp;·&nbsp; ${storeData.length} store${storeData.length!==1?'s':''} &nbsp;·&nbsp; ${grandKg} kg total &nbsp;·&nbsp; ₹${fmtInt(grandVal)} value</p>
+  </div>
+
+  <div class="metrics" style="margin-bottom:16px">
+    <div class="metric"><div class="m-label">Total weight</div><div class="m-val">${grandKg} kg</div></div>
+    <div class="metric"><div class="m-label">Cases to load</div><div class="m-val">~${totalCases}</div><div class="m-sub">${CASE} kg per case</div></div>
+    <div class="metric"><div class="m-label">Stores</div><div class="m-val">${storeData.length}</div></div>
+    <div class="metric"><div class="m-label">Total value</div><div class="m-val">₹${fmtInt(grandVal)}</div></div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+      Stock to Load (by product)
+    </div>
+    <table>
+      <thead><tr>
+        <th>Product</th><th>Type</th>
+        <th style="text-align:center">Total Qty</th>
+        <th style="text-align:center">Cases Needed</th>
+        <th style="text-align:center">Calculation</th>
+      </tr></thead>
+      <tbody>${productRows}</tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      Store-wise Delivery List
+    </div>
+    <table>
+      <thead><tr>
+        <th>Store</th>
+        <th>Order Details</th>
+        <th style="text-align:center">Qty</th>
+        <th style="text-align:right">Value</th>
+      </tr></thead>
+      <tbody>${storeRows}</tbody>
+    </table>
+  </div>`;
+}
+
+// ─── SETUP ───────────────────────────────────────────────────────────────────
+function loadBizForm() {
+  const b = S.biz;
+  document.getElementById('biz-name').value = b.name || '';
+  document.getElementById('biz-gstin').value = b.gstin || '';
+  document.getElementById('biz-addr').value = b.addr || '';
+  document.getElementById('biz-phone').value = b.phone || '';
+}
+
+function saveBiz() {
+  S.biz = {
+    name: document.getElementById('biz-name').value,
+    gstin: document.getElementById('biz-gstin').value,
+    addr: document.getElementById('biz-addr').value,
+    phone: document.getElementById('biz-phone').value,
+  };
+  save();
+  alert('Business details saved!');
+}
+
+function addRoute() {
+  const val = document.getElementById('new-route').value.trim();
+  if (!val) return;
+  if (S.routes.includes(val)) return alert('Route already exists');
+  S.routes.push(val);
+  document.getElementById('new-route').value = '';
+  save(); refreshAllSelects(); renderRouteList();
+}
+
+function deleteRoute(name) {
+  if (!confirm(`Delete route "${name}"? This will not delete stores or orders.`)) return;
+  S.routes = S.routes.filter(r => r !== name);
+  save(); refreshAllSelects(); renderRouteList();
+}
+
+function addStore() {
+  const name = document.getElementById('new-store-name').value.trim();
+  const gstin = document.getElementById('new-store-gstin').value.trim();
+  const phone = document.getElementById('new-store-phone').value.trim();
+  const route = document.getElementById('new-store-route').value;
+  if (!name || !route) return alert('Store name and route are required');
+  const id = 'S' + Date.now();
+  S.stores.push({ id, name, route, gstin, phone });
+  document.getElementById('new-store-name').value = '';
+  document.getElementById('new-store-gstin').value = '';
+  document.getElementById('new-store-phone').value = '';
+  save(); renderStoreList();
+}
+
+function deleteStore(id) {
+  const s = S.stores.find(x => x.id === id);
+  if (!confirm(`Delete "${s.name}"?`)) return;
+  S.stores = S.stores.filter(x => x.id !== id);
+  save(); renderStoreList();
+}
+
+function renderRouteList() {
+  document.getElementById('route-list').innerHTML = S.routes.length ? S.routes.map(r => `
+    <div class="list-item">
+      <div>
+        <div class="li-main">${r}</div>
+        <div class="li-sub">${S.stores.filter(s => s.route === r).length} stores</div>
+      </div>
+      <button class="btn danger sm" onclick="deleteRoute('${r}')">Delete</button>
+    </div>`).join('') : '<div style="color:var(--text3);font-size:13px">No routes added yet</div>';
+}
+
+function renderStoreList() {
+  document.getElementById('store-list').innerHTML = S.stores.length ? S.stores.map(s => `
+    <div class="list-item">
+      <div>
+        <div class="li-main">${s.name}</div>
+        <div class="li-sub">${s.route}${s.gstin?' · '+s.gstin:''}</div>
+      </div>
+      <button class="btn danger sm" onclick="deleteStore('${s.id}')">Delete</button>
+    </div>`).join('') : '<div style="color:var(--text3);font-size:13px">No stores added yet</div>';
+}
+
+function renderProductTable() {
+  const catBadge = { tea: 'badge-tea', coffee: 'badge-coffee', premix: 'badge-premix' };
+  document.getElementById('product-table-body').innerHTML = S.products.map(p => `
+    <tr>
+      <td>${p.name}</td>
+      <td><span class="badge ${catBadge[p.cat]||''}">${p.type}</span></td>
+      <td><span class="badge ${catBadge[p.cat]||''}">${p.cat}</span></td>
+      <td style="text-align:center">${p.gst}%</td>
+      <td>₹${p.defRate}/kg</td>
+    </tr>`).join('');
+}
+
+// ─── UTILS ───────────────────────────────────────────────────────────────────
+function numberToWords(n) {
+  const ones = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  const tens = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  if (n === 0) return 'Zero';
+  if (n < 20) return ones[n];
+  if (n < 100) return tens[Math.floor(n/10)] + (n%10 ? ' ' + ones[n%10] : '');
+  if (n < 1000) return ones[Math.floor(n/100)] + ' Hundred' + (n%100 ? ' ' + numberToWords(n%100) : '');
+  if (n < 100000) return numberToWords(Math.floor(n/1000)) + ' Thousand' + (n%1000 ? ' ' + numberToWords(n%1000) : '');
+  if (n < 10000000) return numberToWords(Math.floor(n/100000)) + ' Lakh' + (n%100000 ? ' ' + numberToWords(n%100000) : '');
+  return numberToWords(Math.floor(n/10000000)) + ' Crore' + (n%10000000 ? ' ' + numberToWords(n%10000000) : '');
+}
+</script>
+</body>
+</html>
