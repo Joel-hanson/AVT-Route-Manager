@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>AVT Truck Loader</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --g:#1a9e6e;--gd:#0d7a52;--gl:#d4f4e8;--gm:#a8e8cc;
+  --bg:#f4f3ef;--surf:#fff;--s2:#f0efe9;--s3:#e8e6df;
+  --bd:#e2dfd6;--bd2:#ccc9be;
+  --tx:#1a1916;--t2:#5c5a54;--t3:#9a9890;
+  --am:#b86e0a;--aml:#fef3e2;--amd:#8a5208;
+  --re:#b52828;--rel:#fdeaea;
+  --pu:#5040a8;--pul:#eeedfb;
+  --bl:#1655a0;--bll:#e8f0fc;
+  --or:#c05a00;--orl:#fff0e6;
+  --r:13px;--rl:18px;
+  --sh:0 2px 8px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --sh2:0 4px 20px rgba(0,0,0,.13),0 2px 6px rgba(0,0,0,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background:var(--bg);color:var(--tx);font-size:15px;}
+button{font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:none;}
+input,select{font-family:'Nunito',sans-serif;}
+
+/* ── SHELL ── */
+#app{display:flex;flex-direction:column;height:100%;height:100dvh;}
+
+/* ── TOPBAR ── */
+#topbar{background:var(--surf);border-bottom:1px solid var(--bd);flex-shrink:0;box-shadow:var(--sh);}
+.tb-main{display:flex;align-items:center;gap:10px;padding:11px 14px 9px;}
+.logo-dot{width:36px;height:36px;background:var(--or);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.logo-dot svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+.logo-txt{font-size:17px;font-weight:900;color:var(--tx);letter-spacing:-.3px;}
+.logo-sub{font-size:11px;color:var(--t3);font-weight:700;margin-top:-2px;}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:7px;}
+
+/* progress bar */
+.prog-bar-wrap{padding:0 14px 10px;}
+.prog-labels{display:flex;justify-content:space-between;margin-bottom:5px;}
+.prog-lbl{font-size:11px;font-weight:800;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;}
+.prog-pct{font-size:12px;font-weight:900;color:var(--g);}
+.prog-track{height:8px;background:var(--s3);border-radius:4px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--g),var(--gd));border-radius:4px;transition:width .4s cubic-bezier(.4,0,.2,1);}
+.prog-fill.warn{background:linear-gradient(90deg,#f59e0b,#d97706);}
+.prog-fill.done{background:linear-gradient(90deg,var(--g),var(--gd));}
+
+/* ── TABS ── */
+.tabs{display:flex;border-bottom:1px solid var(--bd);background:var(--surf);}
+.tab{flex:1;padding:9px 4px 8px;font-size:12px;font-weight:800;color:var(--t3);text-align:center;text-transform:uppercase;letter-spacing:.04em;border-bottom:2.5px solid transparent;cursor:pointer;transition:all .15s;}
+.tab.active{color:var(--or);border-bottom-color:var(--or);}
+
+/* ── SCREEN ── */
+#screens{flex:1;overflow:hidden;position:relative;}
+.screen{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 13px 20px;display:none;flex-direction:column;gap:10px;}
+.screen.active{display:flex;}
+
+/* ── SUMMARY PILLS ── */
+.summ-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.summ-pill{background:var(--surf);border:1px solid var(--bd);border-radius:var(--r);padding:10px 10px 9px;text-align:center;box-shadow:var(--sh);}
+.sp-val{font-size:20px;font-weight:900;color:var(--tx);}
+.sp-lbl{font-size:10px;font-weight:800;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;margin-top:2px;}
+.sp-sub{font-size:10px;font-weight:700;color:var(--t3);margin-top:1px;}
+
+/* ── SECTION HEADER ── */
+.sec-hd{font-size:11px;font-weight:900;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;padding:2px 1px 0;}
+
+/* ── PRODUCT LOAD CARD ── */
+.plc{background:var(--surf);border:2px solid var(--bd);border-radius:var(--rl);overflow:hidden;box-shadow:var(--sh);transition:border-color .2s;}
+.plc.loading{border-color:var(--am);}
+.plc.done{border-color:var(--gm);background:#fbfeff;}
+.plc.over{border-color:var(--re);}
+
+.plc-head{display:flex;align-items:flex-start;gap:10px;padding:12px 13px 10px;}
+.plc-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.plc-info{flex:1;min-width:0;}
+.plc-name{font-size:14px;font-weight:800;color:var(--tx);line-height:1.3;}
+.plc-meta{font-size:11px;color:var(--t3);font-weight:700;margin-top:2px;display:flex;gap:8px;flex-wrap:wrap;}
+.meta-tag{background:var(--s2);border-radius:5px;padding:2px 7px;font-size:10px;font-weight:800;}
+.plc-status{flex-shrink:0;text-align:right;}
+.status-pill{font-size:10px;font-weight:900;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em;}
+.sp-pending{background:var(--s2);color:var(--t2);}
+.sp-loading{background:var(--aml);color:var(--amd);}
+.sp-done{background:var(--gl);color:var(--gd);}
+.sp-over{background:var(--rel);color:var(--re);}
+
+/* progress inside card */
+.plc-prog{padding:0 13px 8px;}
+.plc-prog-track{height:6px;background:var(--s3);border-radius:3px;overflow:hidden;}
+.plc-prog-fill{height:100%;border-radius:3px;transition:width .3s;}
+.plc-prog-labels{display:flex;justify-content:space-between;margin-top:4px;}
+.ppl-loaded{font-size:11px;font-weight:800;color:var(--g);}
+.ppl-remain{font-size:11px;font-weight:800;color:var(--t3);}
+.ppl-remain.warn{color:var(--am);}
+.ppl-remain.over{color:var(--re);}
+
+/* CASES row */
+.cases-row{display:flex;gap:8px;padding:8px 13px 12px;border-top:1px solid var(--bd);}
+.case-col{flex:1;display:flex;flex-direction:column;gap:6px;}
+.case-lbl{font-size:10px;font-weight:900;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;text-align:center;}
+.case-counter{display:flex;align-items:center;gap:0;background:var(--s2);border-radius:11px;overflow:hidden;border:1.5px solid var(--bd2);}
+.cc-btn{width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:var(--t2);flex-shrink:0;}
+.cc-btn:active{background:var(--s3);}
+.cc-btn.plus{color:var(--g);}
+.cc-btn.minus{color:var(--re);}
+.cc-val{flex:1;text-align:center;font-size:18px;font-weight:900;color:var(--tx);}
+.cc-of{font-size:11px;font-weight:700;color:var(--t3);text-align:center;margin-top:2px;}
+.cc-of .done-lbl{color:var(--g);font-weight:900;}
+.cc-of .over-lbl{color:var(--re);font-weight:900;}
+
+/* DONE card overlay */
+.done-banner{background:var(--gl);border-top:1px solid var(--gm);padding:7px 13px;display:flex;align-items:center;gap:7px;font-size:12px;font-weight:800;color:var(--gd);}
+.done-banner svg{width:16px;height:16px;stroke:var(--gd);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+
+/* ── IMPORT SCREEN ── */
+.import-card{background:var(--surf);border:1.5px solid var(--bd);border-radius:var(--rl);padding:16px 15px;box-shadow:var(--sh);}
+.import-ttl{font-size:15px;font-weight:800;color:var(--tx);margin-bottom:4px;}
+.import-sub{font-size:12px;color:var(--t3);font-weight:600;margin-bottom:14px;line-height:1.6;}
+.imp-field{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;}
+.imp-lbl{font-size:11px;font-weight:800;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;}
+.imp-inp{height:42px;border:1.5px solid var(--bd2);border-radius:10px;padding:0 12px;background:var(--s2);color:var(--tx);font-size:14px;font-weight:700;width:100%;}
+.imp-inp:focus{outline:none;border-color:var(--or);}
+.imp-sel{height:42px;border:1.5px solid var(--bd2);border-radius:10px;padding:0 12px;background:var(--s2);color:var(--tx);font-size:14px;font-weight:700;width:100%;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239a9890' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;}
+.add-prod-btn{width:100%;height:46px;border-radius:12px;background:var(--or);color:#fff;font-size:14px;font-weight:800;margin-bottom:10px;}
+.add-prod-btn:active{background:#a04b00;}
+.prod-queue{display:flex;flex-direction:column;gap:6px;margin-top:10px;}
+.pq-item{display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--s2);border-radius:10px;}
+.pq-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.pq-name{flex:1;font-size:13px;font-weight:700;color:var(--tx);}
+.pq-qty{font-size:12px;font-weight:800;color:var(--t2);}
+.pq-del{width:28px;height:28px;border-radius:7px;background:var(--rel);display:flex;align-items:center;justify-content:center;}
+.pq-del svg{width:13px;height:13px;stroke:var(--re);fill:none;stroke-width:2.5;stroke-linecap:round;}
+
+.start-btn{width:100%;height:52px;border-radius:14px;background:var(--or);color:#fff;font-size:17px;font-weight:900;margin-top:4px;}
+.start-btn:active{background:#a04b00;}
+.start-btn:disabled{background:var(--s3);color:var(--t3);}
+
+.reset-btn{width:100%;height:44px;border-radius:12px;background:var(--rel);color:var(--re);font-size:14px;font-weight:800;border:1.5px solid #f0c5c5;}
+.reset-btn:active{background:#fdd;}
+
+/* ── HISTORY SCREEN ── */
+.hist-item{background:var(--surf);border:1px solid var(--bd);border-radius:var(--r);padding:11px 13px;}
+.hi-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;}
+.hi-name{font-size:13px;font-weight:800;color:var(--tx);}
+.hi-time{font-size:11px;font-weight:600;color:var(--t3);}
+.hi-detail{font-size:12px;font-weight:600;color:var(--t2);}
+.hi-type{font-size:11px;font-weight:800;padding:2px 8px;border-radius:20px;}
+.hi-case{background:var(--bll);color:var(--bl);}
+.hi-loose{background:var(--aml);color:var(--amd);}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:28px 16px;color:var(--t3);}
+.empty svg{width:36px;height:36px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;margin-bottom:9px;opacity:.4;display:block;margin-left:auto;margin-right:auto;}
+.empty p{font-size:13px;font-weight:700;}
+
+/* ── MODAL ── */
+#modal-wrap{position:fixed;inset:0;z-index:300;pointer-events:none;}
+#modal-bg{position:absolute;inset:0;background:rgba(0,0,0,.5);opacity:0;transition:opacity .2s;pointer-events:none;}
+#modal-box{position:absolute;bottom:0;left:0;right:0;background:var(--surf);border-radius:22px 22px 0 0;transform:translateY(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);padding:16px 15px calc(22px + env(safe-area-inset-bottom,0));}
+#modal-wrap.open{pointer-events:all;}
+#modal-wrap.open #modal-bg{opacity:1;pointer-events:all;}
+#modal-wrap.open #modal-box{transform:translateY(0);}
+.modal-handle{width:40px;height:4px;background:var(--bd2);border-radius:2px;margin:0 auto 14px;}
+.modal-ttl{font-size:17px;font-weight:800;color:var(--tx);margin-bottom:3px;}
+.modal-sub{font-size:12px;font-weight:600;color:var(--t3);margin-bottom:14px;}
+
+@media print{body{overflow:auto;height:auto;}}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- TOPBAR -->
+  <div id="topbar">
+    <div class="tb-main">
+      <div class="logo-dot">
+        <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      </div>
+      <div>
+        <div class="logo-txt">Truck Loader</div>
+        <div class="logo-sub" id="session-label">No session active</div>
+      </div>
+      <div class="tb-right">
+        <button onclick="switchTab('import')" style="height:34px;padding:0 12px;border-radius:9px;background:var(--s2);border:1px solid var(--bd);font-size:12px;font-weight:800;color:var(--t2)" id="new-session-btn">+ New Session</button>
+      </div>
+    </div>
+    <div class="prog-bar-wrap" id="prog-wrap" style="display:none">
+      <div class="prog-labels"><span class="prog-lbl" id="prog-lbl-l"></span><span class="prog-pct" id="prog-pct"></span></div>
+      <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" id="tab-load" onclick="switchTab('load')">Loading</div>
+    <div class="tab" id="tab-import" onclick="switchTab('import')">Setup</div>
+    <div class="tab" id="tab-history" onclick="switchTab('history')">Log</div>
+  </div>
+
+  <!-- SCREENS -->
+  <div id="screens">
+
+    <!-- LOADING SCREEN -->
+    <div class="screen active" id="scr-load">
+      <div class="summ-row" id="summ-row" style="display:none"></div>
+      <div class="sec-hd" id="prod-hd" style="display:none">Products — tap +/- to count loaded items</div>
+      <div id="prod-cards"></div>
+      <div id="load-empty" class="empty">
+        <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        <p>No session active.<br>Tap Setup to add products to load.</p>
+      </div>
+    </div>
+
+    <!-- IMPORT / SETUP SCREEN -->
+    <div class="screen" id="scr-import">
+      <div class="import-card">
+        <div class="import-ttl">New Loading Session</div>
+        <div class="import-sub">Enter the product names and quantities to load from your Sales Product Summary sheet. You can add cases and loose (kg/nos) separately.</div>
+
+        <div class="imp-field"><div class="imp-lbl">Session / Route Name</div><input class="imp-inp" id="sess-name" type="text" placeholder="e.g. Vadakanchery – 21 May" /></div>
+
+        <!-- Add product row -->
+        <div style="background:var(--s2);border-radius:12px;padding:12px;margin-bottom:10px;border:1.5px solid var(--bd);">
+          <div style="font-size:12px;font-weight:800;color:var(--t2);margin-bottom:9px;text-transform:uppercase;letter-spacing:.04em">Add a product</div>
+          <div class="imp-field"><div class="imp-lbl">Product name</div><input class="imp-inp" id="add-pname" type="text" placeholder="e.g. AVT 1KG MRP-335" /></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+            <div class="imp-field"><div class="imp-lbl">Cases to load</div><input class="imp-inp" id="add-cases" type="number" min="0" step="1" placeholder="0" inputmode="numeric" /></div>
+            <div class="imp-field"><div class="imp-lbl">Loose (kg/nos)</div><input class="imp-inp" id="add-loose" type="number" min="0" step="0.5" placeholder="0" inputmode="decimal" /></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+            <div class="imp-field"><div class="imp-lbl">Unit (for loose)</div>
+              <select class="imp-sel" id="add-unit">
+                <option value="KG">KG</option>
+                <option value="BAG">BAG</option>
+                <option value="NOS">NOS</option>
+                <option value="PKT">PKT</option>
+                <option value="PCS">PCS</option>
+              </select>
+            </div>
+            <div class="imp-field"><div class="imp-lbl">Category</div>
+              <select class="imp-sel" id="add-cat">
+                <option value="tea">Tea</option>
+                <option value="coffee">Coffee</option>
+                <option value="premix">Premix</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          <button class="add-prod-btn" style="margin-top:10px;margin-bottom:0" onclick="addToQueue()">+ Add to List</button>
+        </div>
+
+        <!-- Queue -->
+        <div id="prod-queue" class="prod-queue"></div>
+
+        <!-- Quick-add from AVT catalogue -->
+        <div style="margin-top:10px;margin-bottom:10px;">
+          <div style="font-size:11px;font-weight:800;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:7px">Or quick-add from AVT catalogue</div>
+          <div id="quick-catalogue" style="display:flex;flex-direction:column;gap:5px;"></div>
+        </div>
+
+        <button class="start-btn" id="start-btn" onclick="startSession()" disabled>Start Loading Session</button>
+      </div>
+
+      <div class="import-card" id="reset-card" style="display:none">
+        <div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:10px">Current session: <strong id="cur-sess-name" style="color:var(--tx)"></strong></div>
+        <button class="reset-btn" onclick="resetSession()">Reset / Clear Current Session</button>
+      </div>
+    </div>
+
+    <!-- HISTORY / LOG SCREEN -->
+    <div class="screen" id="scr-history">
+      <div class="sec-hd">Loading log — all tap events</div>
+      <div id="hist-list"></div>
+      <div id="hist-empty" class="empty" style="display:none">
+        <svg viewBox="0 0 24 24"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
+        <p>No loading events yet</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL for quick-add quantity -->
+<div id="modal-wrap">
+  <div id="modal-bg" onclick="closeModal()"></div>
+  <div id="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-ttl" id="modal-ttl"></div>
+    <div class="modal-sub" id="modal-sub"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px">
+      <div class="imp-field"><div class="imp-lbl">Cases to load</div><input class="imp-inp" id="modal-cases" type="number" min="0" step="1" placeholder="0" inputmode="numeric" /></div>
+      <div class="imp-field"><div class="imp-lbl">Loose (kg/nos)</div><input class="imp-inp" id="modal-loose" type="number" min="0" step="0.5" placeholder="0" inputmode="decimal" /></div>
+    </div>
+    <button class="start-btn" style="font-size:15px;height:48px" onclick="confirmQuickAdd()">Add to List</button>
+  </div>
+</div>
+
+<script>
+// ── STATE ────────────────────────────────────────────────────────────────
+const CATALOGUE=[
+  {id:'p1',name:'AVT 1KG MRP-335',cat:'tea',defCases:0,defLoose:0,unit:'KG'},
+  {id:'p2',name:'AVT 250GM MRP-85',cat:'tea',defCases:0,defLoose:0,unit:'KG'},
+  {id:'p3',name:'AVT H.B.1KG MRP-325',cat:'tea',defCases:0,defLoose:0,unit:'KG'},
+  {id:'p4',name:'AVT PRE. MRP-10',cat:'tea',defCases:0,defLoose:0,unit:'KG'},
+  {id:'p5',name:'AVT 100GM MRP-35',cat:'tea',defCases:0,defLoose:0,unit:'BAG'},
+  {id:'p6',name:'AVT 500GM MRP-170',cat:'tea',defCases:0,defLoose:0,unit:'KG'},
+  {id:'p7',name:'AVT Premium 500GM JAR',cat:'tea',defCases:0,defLoose:0,unit:'KG'},
+  {id:'p8',name:'AVT Premium Leaf 250GM',cat:'tea',defCases:0,defLoose:0,unit:'KG'},
+  {id:'p9',name:'Green Tea Bag 10s RS70',cat:'tea',defCases:0,defLoose:0,unit:'NOS'},
+  {id:'p10',name:'Green Tea 100GM MRP-170',cat:'tea',defCases:0,defLoose:0,unit:'NOS'},
+  {id:'p11',name:'AVT Premium Coffee',cat:'coffee',defCases:0,defLoose:0,unit:'KG'},
+  {id:'p12',name:'AVT Coffee Vending Premix',cat:'premix',defCases:0,defLoose:0,unit:'KG'},
+];
+
+let state={
+  session:null,   // { id, name, createdAt, products:[{id,name,cat,unit,needCases,needLoose,loadedCases,loadedLoose}] }
+  queue:[],       // temp queue while setting up
+  log:[],         // [{time,productId,productName,type,delta,newVal}]
+};
+
+function loadState(){try{const v=localStorage.getItem('avt_loader_v2');if(v)Object.assign(state,JSON.parse(v));}catch(e){}}
+function save(){try{localStorage.setItem('avt_loader_v2',JSON.stringify(state));}catch(e){}}
+function catColor(c){return c==='tea'?'#1a9e6e':c==='coffee'?'#b86e0a':c==='premix'?'#5040a8':'#607080';}
+function now(){return new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+function todayStr(){return new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+window.onload=()=>{
+  loadState();
+  renderCatalogue();
+  renderAll();
+};
+
+// ── TABS ──────────────────────────────────────────────────────────────────
+function switchTab(tab){
+  ['load','import','history'].forEach(t=>{
+    document.getElementById('scr-'+t).classList.toggle('active',t===tab);
+    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
+  });
+  if(tab==='history')renderHistory();
+}
+
+// ── RENDER ALL ────────────────────────────────────────────────────────────
+function renderAll(){
+  renderTopbar();
+  renderLoadScreen();
+  renderSetupScreen();
+}
+
+function renderTopbar(){
+  const s=state.session;
+  document.getElementById('session-label').textContent=s?s.name:'No session active';
+  const pw=document.getElementById('prog-wrap');
+  if(!s){pw.style.display='none';return;}
+  pw.style.display='block';
+  // compute overall progress
+  let totalNeeded=0,totalLoaded=0;
+  s.products.forEach(p=>{
+    totalNeeded+=p.needCases+p.needLoose;
+    totalLoaded+=p.loadedCases+p.loadedLoose;
+  });
+  const pct=totalNeeded>0?Math.min(100,Math.round(totalLoaded/totalNeeded*100)):0;
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-pct').textContent=pct+'%';
+  const remaining=totalNeeded-totalLoaded;
+  document.getElementById('prog-lbl-l').textContent=remaining>0?`${remaining} units remaining`:'All loaded ✓';
+}
+
+function renderLoadScreen(){
+  const s=state.session;
+  const empty=document.getElementById('load-empty');
+  const cards=document.getElementById('prod-cards');
+  const summRow=document.getElementById('summ-row');
+  const hd=document.getElementById('prod-hd');
+  if(!s){empty.style.display='block';cards.innerHTML='';summRow.style.display='none';hd.style.display='none';return;}
+  empty.style.display='none';hd.style.display='block';
+
+  // summary
+  let totalNeed=0,totalLoad=0,doneCount=0,overCount=0;
+  s.products.forEach(p=>{
+    const need=p.needCases+p.needLoose;
+    const loaded=p.loadedCases+p.loadedLoose;
+    totalNeed+=need;totalLoad+=loaded;
+    if(loaded>=need&&need>0)doneCount++;
+    if(loaded>need)overCount++;
+  });
+  summRow.style.display='grid';
+  summRow.innerHTML=`
+    <div class="summ-pill"><div class="sp-val">${s.products.length}</div><div class="sp-lbl">Products</div></div>
+    <div class="summ-pill"><div class="sp-val" style="color:var(--g)">${doneCount}</div><div class="sp-lbl">Done</div><div class="sp-sub">${s.products.length-doneCount} left</div></div>
+    <div class="summ-pill"><div class="sp-val" style="color:var(--or)">${totalLoad}</div><div class="sp-lbl">Loaded</div><div class="sp-sub">of ${totalNeed}</div></div>`;
+
+  // product cards
+  cards.innerHTML=s.products.map((p,idx)=>{
+    const needC=p.needCases,needL=p.needLoose;
+    const loadC=p.loadedCases,loadL=p.loadedLoose;
+    const totalNeedP=needC+needL,totalLoadP=loadC+loadL;
+    const pct=totalNeedP>0?Math.min(100,Math.round(totalLoadP/totalNeedP*100)):0;
+    const isDone=totalLoadP>=totalNeedP&&totalNeedP>0;
+    const isOver=totalLoadP>totalNeedP;
+    const isLoading=totalLoadP>0&&!isDone;
+    const cls=isOver?'over':isDone?'done':isLoading?'loading':'';
+    const statusTxt=isOver?'Over-loaded':isDone?'Done':isLoading?'Loading…':'Pending';
+    const statusCls=isOver?'sp-over':isDone?'sp-done':isLoading?'sp-loading':'sp-pending';
+    const fillColor=isOver?'#ef4444':isDone?'var(--g)':'var(--am)';
+    const remainC=needC-loadC,remainL=needL-loadL;
+
+    return`<div class="plc ${cls}" id="plc-${idx}">
+      <div class="plc-head">
+        <div class="plc-dot" style="background:${catColor(p.cat)}"></div>
+        <div class="plc-info">
+          <div class="plc-name">${p.name}</div>
+          <div class="plc-meta">
+            ${needC>0?`<span class="meta-tag" style="background:var(--bll);color:var(--bl)">${needC} Cases needed</span>`:''}
+            ${needL>0?`<span class="meta-tag" style="background:var(--aml);color:var(--amd)">${needL} ${p.unit} loose needed</span>`:''}
+          </div>
+        </div>
+        <div class="plc-status"><span class="status-pill ${statusCls}">${statusTxt}</span></div>
+      </div>
+
+      ${totalNeedP>0?`<div class="plc-prog">
+        <div class="plc-prog-track"><div class="plc-prog-fill" style="width:${pct}%;background:${fillColor}"></div></div>
+        <div class="plc-prog-labels">
+          <span class="ppl-loaded">${totalLoadP} loaded (${pct}%)</span>
+          <span class="ppl-remain ${isOver?'over':isLoading?'warn':''}">${isOver?`${Math.abs(totalLoadP-totalNeedP)} EXTRA`:isDone?'Complete ✓':`${totalNeedP-totalLoadP} remaining`}</span>
+        </div>
+      </div>`:''}
+
+      <div class="cases-row">
+        ${needC>0?`<div class="case-col">
+          <div class="case-lbl">Cases ${loadC>=needC?'<span style="color:var(--g)">✓</span>':''}</div>
+          <div class="case-counter">
+            <button class="cc-btn minus" onclick="tap(${idx},'cases',-1)">−</button>
+            <div class="cc-val">${loadC}</div>
+            <button class="cc-btn plus" onclick="tap(${idx},'cases',1)">+</button>
+          </div>
+          <div class="cc-of">${loadC>=needC?`<span class="done-lbl">Done (need ${needC})</span>`:(loadC>needC?`<span class="over-lbl">+${loadC-needC} extra</span>`:`<span>${loadC}/${needC}</span>`)}</div>
+        </div>`:''}
+        ${needL>0?`<div class="case-col">
+          <div class="case-lbl">Loose ${p.unit} ${loadL>=needL?'<span style="color:var(--g)">✓</span>':''}</div>
+          <div class="case-counter">
+            <button class="cc-btn minus" onclick="tap(${idx},'loose',-1)">−</button>
+            <div class="cc-val">${loadL}</div>
+            <button class="cc-btn plus" onclick="tap(${idx},'loose',1)">+</button>
+          </div>
+          <div class="cc-of">${loadL>=needL?`<span class="done-lbl">Done (need ${needL})</span>`:(loadL>needL?`<span class="over-lbl">+${loadL-needL} extra</span>`:`<span>${loadL}/${needL}</span>`)}</div>
+        </div>`:''}
+      </div>
+
+      ${isDone&&!isOver?`<div class="done-banner"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> All loaded correctly — ${totalLoadP} total</div>`:''}
+      ${isOver?`<div class="done-banner" style="background:var(--rel);border-color:#f0c5c5;color:var(--re)"><svg viewBox="0 0 24 24" style="stroke:var(--re)"><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/><circle cx="12" cy="12" r="10"/></svg> Over-loaded by ${totalLoadP-totalNeedP} — check count!</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ── TAP COUNTER ───────────────────────────────────────────────────────────
+function tap(idx,type,delta){
+  const s=state.session;if(!s)return;
+  const p=s.products[idx];
+  if(type==='cases'){
+    p.loadedCases=Math.max(0,p.loadedCases+delta);
+  } else {
+    p.loadedLoose=Math.max(0,p.loadedLoose+delta);
+  }
+  // log it
+  state.log.unshift({
+    time:now(),date:todayStr(),
+    productName:p.name,
+    type,
+    delta,
+    val:type==='cases'?p.loadedCases:p.loadedLoose,
+    need:type==='cases'?p.needCases:p.needLoose,
+    sessionName:s.name
+  });
+  save();
+  renderAll();
+}
+
+// ── SETUP SCREEN ──────────────────────────────────────────────────────────
+function renderSetupScreen(){
+  renderQueueList();
+  renderCatalogue();
+  const s=state.session;
+  const rc=document.getElementById('reset-card');
+  rc.style.display=s?'block':'none';
+  if(s)document.getElementById('cur-sess-name').textContent=s.name;
+  document.getElementById('start-btn').disabled=state.queue.length===0;
+}
+
+function renderQueueList(){
+  const el=document.getElementById('prod-queue');
+  if(!state.queue.length){el.innerHTML='<div style="font-size:12px;color:var(--t3);font-weight:600;text-align:center;padding:8px">No products added yet</div>';return;}
+  el.innerHTML=state.queue.map((p,i)=>`
+    <div class="pq-item">
+      <div class="pq-dot" style="background:${catColor(p.cat)}"></div>
+      <div class="pq-name">${p.name}<div style="font-size:11px;color:var(--t3);font-weight:600">${p.needCases>0?p.needCases+' cases':''} ${p.needLoose>0?p.needLoose+' '+p.unit+' loose':''}</div></div>
+      <button class="pq-del" onclick="removeFromQueue(${i})"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>`).join('');
+  document.getElementById('start-btn').disabled=false;
+}
+
+function addToQueue(){
+  const name=document.getElementById('add-pname').value.trim();
+  const cases=parseFloat(document.getElementById('add-cases').value)||0;
+  const loose=parseFloat(document.getElementById('add-loose').value)||0;
+  const unit=document.getElementById('add-unit').value;
+  const cat=document.getElementById('add-cat').value;
+  if(!name)return alert('Enter product name');
+  if(!cases&&!loose)return alert('Enter at least cases or loose quantity');
+  state.queue.push({id:'q'+Date.now(),name,cat,unit,needCases:cases,needLoose:loose,loadedCases:0,loadedLoose:0});
+  document.getElementById('add-pname').value='';
+  document.getElementById('add-cases').value='';
+  document.getElementById('add-loose').value='';
+  renderSetupScreen();
+}
+
+function removeFromQueue(i){
+  state.queue.splice(i,1);renderSetupScreen();
+}
+
+function startSession(){
+  const name=document.getElementById('sess-name').value.trim()||('Session '+todayStr());
+  state.session={id:'sess'+Date.now(),name,createdAt:todayStr()+' '+now(),products:JSON.parse(JSON.stringify(state.queue))};
+  state.queue=[];
+  save();renderAll();
+  switchTab('load');
+}
+
+function resetSession(){
+  if(!confirm('Reset current session? All loading progress will be lost.'))return;
+  state.session=null;state.log=[];save();renderAll();switchTab('load');
+}
+
+// ── CATALOGUE QUICK-ADD ───────────────────────────────────────────────────
+let modalCatItem=null;
+function renderCatalogue(){
+  document.getElementById('quick-catalogue').innerHTML=CATALOGUE.map((p,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surf);border:1px solid var(--bd);border-radius:9px;cursor:pointer" onclick="openQuickAdd(${i})">
+      <div style="width:8px;height:8px;border-radius:50%;background:${catColor(p.cat)};flex-shrink:0"></div>
+      <div style="flex:1;font-size:13px;font-weight:700;color:var(--tx)">${p.name}</div>
+      <div style="font-size:12px;font-weight:800;color:var(--or)">Add →</div>
+    </div>`).join('');
+}
+
+function openQuickAdd(i){
+  modalCatItem=CATALOGUE[i];
+  document.getElementById('modal-ttl').textContent=modalCatItem.name;
+  document.getElementById('modal-sub').textContent='Enter how many cases and/or loose '+modalCatItem.unit+' to load';
+  document.getElementById('modal-cases').value='';
+  document.getElementById('modal-loose').value='';
+  document.getElementById('modal-wrap').classList.add('open');
+  setTimeout(()=>document.getElementById('modal-cases').focus(),300);
+}
+
+function closeModal(){document.getElementById('modal-wrap').classList.remove('open');modalCatItem=null;}
+
+function confirmQuickAdd(){
+  if(!modalCatItem)return;
+  const cases=parseFloat(document.getElementById('modal-cases').value)||0;
+  const loose=parseFloat(document.getElementById('modal-loose').value)||0;
+  if(!cases&&!loose){alert('Enter at least cases or loose quantity');return;}
+  state.queue.push({id:'q'+Date.now(),name:modalCatItem.name,cat:modalCatItem.cat,unit:modalCatItem.unit,needCases:cases,needLoose:loose,loadedCases:0,loadedLoose:0});
+  closeModal();renderSetupScreen();
+}
+
+// ── HISTORY ───────────────────────────────────────────────────────────────
+function renderHistory(){
+  const el=document.getElementById('hist-list');
+  const emp=document.getElementById('hist-empty');
+  if(!state.log.length){el.innerHTML='';emp.style.display='block';return;}
+  emp.style.display='none';
+  el.innerHTML=state.log.map(h=>`
+    <div class="hist-item">
+      <div class="hi-top">
+        <div>
+          <div class="hi-name">${h.productName}</div>
+          <div class="hi-detail">${h.sessionName||''}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:14px;font-weight:900;color:${h.delta>0?'var(--g)':'var(--re)'}">${h.delta>0?'+'+h.delta:h.delta} ${h.type==='cases'?'case':'loose'}</div>
+          <div class="hi-time">${h.date} ${h.time}</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+        <span class="hi-type ${h.type==='cases'?'hi-case':'hi-loose'}">${h.type==='cases'?'CASE':'LOOSE'}</span>
+        <span style="font-size:11px;font-weight:700;color:var(--t3)">Now: ${h.val} / Need: ${h.need}</span>
+      </div>
+    </div>`).join('');
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+</script>
+</body>
+</html>
